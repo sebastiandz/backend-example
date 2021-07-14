@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.sebastiandz.backendexample.calculations.CalculationService;
 import pl.sebastiandz.backendexample.github.GitHubFacade;
 import pl.sebastiandz.backendexample.github.dto.GitHubUserDto;
+import pl.sebastiandz.backendexample.requests.RequestCounterService;
 import pl.sebastiandz.backendexample.users.dto.UserDto;
 
 @RestController
@@ -15,12 +16,14 @@ import pl.sebastiandz.backendexample.users.dto.UserDto;
 @AllArgsConstructor
 public class UsersController {
 
+    private final RequestCounterService requestCounterService;
     private final GitHubFacade gitHubFacade;
     private final CalculationService calculationService;
 
     @GetMapping(path = "{login}")
     UserDto userDetails(@PathVariable("login") String login) {
 
+        requestCounterService.createIfNotExistAndIncrementCounter(login);
         GitHubUserDto gitHubUser = gitHubFacade.user(login);
         double calculations = calculationService.calculate(gitHubUser.getFollowers(), gitHubUser.getPublicRepos());
 
